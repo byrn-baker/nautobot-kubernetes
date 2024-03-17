@@ -111,6 +111,8 @@ status:
     status: "True"
     type: Ready
 ```
+
+### Setting your folder structure to deploy nautobot
 Nautobot will require its own kustomization so that we can define what should be tracked as part of our project. In the flux-system folder create a new file and call it ```nautobot-kustomization.yaml```
 
 add the following to the file
@@ -269,6 +271,7 @@ nautobot-redis-master-0                  1/1     Running   0               7m47s
 
 Excelent we have the deployment up and running. We can get further details with ```kubectl describe deployment -n nautobot nautobot```. This will provide details on the docker container version used, along with the exposed ports inside the cluster. Now we need to define how the application can be accessed from outside the cluster.
 
+### How to configure traefik to route requests to Nautobot
 In my particular cluster I'm using Traefik as a reverse proxy to my cluster applications. This requires some additional files to define how outside users will be routed to these internal resources. We will need to create two additional files ```./kubernetes/ingress.yaml``` & ```./kubernetes/default-headers.yaml```. 
 
 In the ingress file we will need to tell traefik where it should route requests. This will be done based on the fqdn being requested. On your local DNS server you will want to create an fdqn for natuobot that points at the clusters loadbalancer. 
@@ -372,6 +375,7 @@ browsing to our defined fqdn should allow you to access your nautobot app.
 
 When defining our values we did not specify any login credentials for this application. Those have been defined for us and here is how you can retrieve them.
 
+### How to get the generated admin password and API token
 ```
 echo Username: admin
   echo Password: $(kubectl get secret --namespace nautobot nautobot-env -o jsonpath="{.data.NAUTOBOT_SUPERUSER_PASSWORD}" | base64 --decode)
