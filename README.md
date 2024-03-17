@@ -146,3 +146,85 @@ nautobot-kustomization   7s    False   kustomization path not found: stat /tmp/k
 
 Create a folder that matches the path set forth above. ```./kubernetes```. We will create two files ```./kubernetes/namespace.yaml```, and ```./kubernetes/kustomization.yaml```. kustomization will be used to specify resources, namespace, and configurations for Nautobot and namespace will be used to generate the new namespace for this project.
 
+Checking the clusters Kustomization again you can see the cluster has benn updated. Our Kustomization file is empty, but that will change very soon.
+
+```
+$ kubectl get kustomization -n flux-system
+NAME                     AGE     READY   STATUS
+flux-system              25h     True    Applied revision: main@sha1:83b4c37a23694d646c1593c535834ef6fcb2231d
+nautobot-kustomization   8m54s   False   kustomize build failed: kustomization.yaml is empty
+```
+
+We will use the Nautobot HelmChart to install the Nautobot application, this will be similar to installing this manually via helm and requires similar values as well.
+
+Create a new file ```./kubernetes/nautobot-helmrepo.yaml```. This will define where the HelmChart will be pulled from. Place the following in this file:
+```
+---
+apiVersion: "source.toolkit.fluxcd.io/v1beta2"
+kind: "HelmRepository"
+metadata:
+  name: "nautobot"
+  namespace: "nautobot"
+spec:
+  url: "https://nautobot.github.io/helm-charts/"
+  interval: "10m"
+```
+
+Create ```./kubernetes/values.yaml``` and place the below in:
+```
+---
+postgresql:
+  postgresqlPassword: "SuperSecret123"
+redis:
+  auth:
+    password: "SuperSecret456"
+```
+
+We will use the values file to generate a ConfigMap in our cluster, the same method is used if you would deploy this manually with Helm. Update the ```./kubernetes/kustomization.yaml``` to include these new files. This defines how Nautobot will be installed inside the cluster.
+
+It should now look like this
+```
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: nautobot
+
+resources:
+  - namespace.yaml
+  - nautobot-helmrepo.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: "nautobot-values"
+    files:
+      - "values=values.yaml"
+```
+
+Now create a file ```./kubernetes/helmrelease.yaml```. This file defines what HelmChart version to use in the application deployment. The HelmChart defined all of the other dependancy this application requires to run, so we don't have to. Defined below is the charter version, and where it should look for the specific nautobot values we want to define.
+
+```
+---
+apiVersion: "helm.toolkit.fluxcd.io/v2beta1"
+kind: "HelmRelease"
+metadata:
+  name: "nautobot"
+spec:
+  interval: "30s"
+  chart:
+    spec:
+      chart: "nautobot"
+      version: "1.3.12"
+      sourceRef:
+        kind: "HelmRepository"
+        name: "nautobot"
+        namespace: "nautobot"
+      interval: "20s"
+  valuesFrom:
+    - kind: "ConfigMap"
+      name: "nautobot-values"
+      valuesKey: "values"
+```
+
+Be sure to update your ```./kubernetes/kustomization.yaml``` to track these new files. Commit this to your repo, and we should start to see the cluster deploy the application.
