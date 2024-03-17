@@ -4,3 +4,10 @@ postgresql:
 redis:
   auth:
     password: "SuperSecret456"
+nautobot:
+  image:
+    registry: "ghcr.io"
+    repository: "byrn-baker/nautobot-kubernetes"
+    tag: "main"
+    pullSecrets:
+      - "ghcr.io"
