@@ -136,3 +136,13 @@ resources:
 - nautobot-kustomization.yaml
 ```
 
+You cluster should be tracking these changes and show the new CRD just created. We have not created the path yet set in the CRD so there is no folder yet to track.
+```
+$ kubectl get kustomization -n flux-system
+NAME                     AGE   READY   STATUS
+flux-system              25h   True    Applied revision: main@sha1:9820cde831fc7ab46fef794940cd601a8b73e025
+nautobot-kustomization   7s    False   kustomization path not found: stat /tmp/kustomization-602987848/kubernetes: no such file or directory
+```
+
+Create a folder that matches the path set forth above. ```./kubernetes```. We will create two files ```./kubernetes/namespace.yaml```, and ```./kubernetes/kustomization.yaml```. kustomization will be used to specify resources, namespace, and configurations for Nautobot and namespace will be used to generate the new namespace for this project.
+
