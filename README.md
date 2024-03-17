@@ -1,8 +1,17 @@
-# nautobot-kubernetes
-Custom built Nautobot container for my homelab
+# nautobot on kubernetes
+I am joining the #100DayOfHomeLab challene and as part of this effort I am going to use that time to teach myself something new. 
+
+I love the [Nautobot](https://networktocode.com/nautobot/) and use it all the time at home and at work. I have always deployed this on a standard ubuntu VM, but recently I started to gain interest in deploying it with docker while learning how to create a Nautobot Application. This lead me to looking at Kubernetes and watching a lot of youtube videos on setting up kubernetes. Now I wondered how can I deploy nautobot inside my k3s cluster? Fortunatly there are examples out there and so I stand on the shoulders of those who have figured this all for me. 
+
+For great walk throughs on k3s, traefik, metallb and deploying your cluster with ansible have a look [here](https://github.com/techno-tim/k3s-ansible), and for flux check [this](https://www.youtube.com/watch?v=PFLimPh5-wo) out.
+
+For the original content to the majority of my walk through check out this blog series from networktocode - [part 1](https://blog.networktocode.com/post/deploying-nautobot-to-kubernetes-01/), [part 2](https://blog.networktocode.com/post/deploying-nautobot-to-kubernetes-02/), and [part 3](https://blog.networktocode.com/post/deploying-nautobot-to-kubernetes-03/)
 
 
-## Boot strap FLux
+## Part 1 - 2024.03.17
+Now on to learning how to setup Flux with a k3s cluster and install the Nautobot App. 
+
+### Boot strap FLux 
 validate the current context of your Kubectl
 
 ```
@@ -155,7 +164,7 @@ flux-system              25h     True    Applied revision: main@sha1:83b4c37a236
 nautobot-kustomization   8m54s   False   kustomize build failed: kustomization.yaml is empty
 ```
 
-We will use the Nautobot HelmChart to install the Nautobot application, this will be similar to installing this manually via helm and requires similar values as well.
+We will use the [Nautobot HelmChart](https://docs.nautobot.com/projects/helm-charts/en/stable/) to install the Nautobot application, this will be similar to installing this manually via helm and requires similar values as well.
 
 Create a new file ```./kubernetes/nautobot-helmrepo.yaml```. This will define where the HelmChart will be pulled from. Place the following in this file:
 ```
@@ -260,3 +269,111 @@ nautobot-redis-master-0                  1/1     Running   0               7m47s
 
 Excelent we have the deployment up and running. We can get further details with ```kubectl describe deployment -n nautobot nautobot```. This will provide details on the docker container version used, along with the exposed ports inside the cluster. Now we need to define how the application can be accessed from outside the cluster.
 
+In my particular cluster I'm using Traefik as a reverse proxy to my cluster applications. This requires some additional files to define how outside users will be routed to these internal resources. We will need to create two additional files ```./kubernetes/ingress.yaml``` & ```./kubernetes/default-headers.yaml```. 
+
+In the ingress file we will need to tell traefik where it should route requests. This will be done based on the fqdn being requested. On your local DNS server you will want to create an fdqn for natuobot that points at the clusters loadbalancer. 
+
+The ingress.yaml defines what API and kind of configuration to be used in the cluster. We need to provide a name and a namespace as well as the ingress class to be used. The specs outline the entrypoint (typically http/web, or https/websecure) based on your prefrence. Routes define the hostname matching (what does into your browser url) and the services traefik should be routing this request to. Middlewares for our purposes set the type of headers to maintain or adjust depending on your application requirements. 
+
+ingress.yaml:
+```
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nautobot
+  namespace: nautobot
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`nautobot.local.byrnbaker.me`)
+      kind: Rule
+      services:
+        - name: nautobot
+          port: 80
+      middlewares:
+        - name: default-headers
+```
+
+As stated above we will use this to control the headers maintained through traefik. 
+default-headers.yaml:
+```
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: default-headers
+  namespace: nautobot
+spec:
+  headers:
+    browserXssFilter: true
+    contentTypeNosniff: true
+    customFrameOptionsValue: SAMEORIGIN
+    customRequestHeaders:
+      X-Forwarded-Proto: https
+    forceSTSHeader: true
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 15552000
+```
+We need to make sure these are being tracked with flux, so update the resources list in ```./kubernetes/kustomization.yaml``` with these two new files. Commit your changes and in a few minutes we should be able to see the updates pushed down to the cluster.
+
+We can see flux reconciling the new commit
+```
+$ kubectl get kustomization -n flux-system
+NAME                     AGE   READY     STATUS
+flux-system              26h   Unknown   Reconciliation in progress
+nautobot-kustomization   68m   True      Applied revision: main@sha1:7c4a8a579e1025a02a6c927d5ffeabce562b2f64
+ubuntu@ubuntu-2204-server:~/nautobot-kubernetes$ kubectl get kustomization -n flux-system
+NAME                     AGE   READY   STATUS
+flux-system              26h   True    Applied revision: main@sha1:7c4a8a579e1025a02a6c927d5ffeabce562b2f64
+nautobot-kustomization   69m   True    Applied revision: main@sha1:7c4a8a579e1025a02a6c927d5ffeabce562b2f64
+```
+
+We can see the new ingressroute in our namespace
+```
+$ kubectl get ingressroute -n nautobot
+NAME       AGE
+nautobot   18m
+```
+
+Here we can see some more details if we describe it. This should match what we placed inside of our ingress.yaml file.
+```
+$ kubectl describe ingressroute nautobot -n nautobot
+Name:         nautobot
+Namespace:    nautobot
+Labels:       kustomize.toolkit.fluxcd.io/name=nautobot-kustomization
+              kustomize.toolkit.fluxcd.io/namespace=flux-system
+Annotations:  kubernetes.io/ingress.class: traefik-external
+API Version:  traefik.containo.us/v1alpha1
+Kind:         IngressRoute
+Metadata:
+  Creation Timestamp:  2024-03-17T19:41:15Z
+  Generation:          2
+  Resource Version:    2132422
+  UID:                 06d1b726-689a-47a2-bd71-8e63e0060071
+Spec:
+  Entry Points:
+    websecure
+  Routes:
+    Kind:   Rule
+    Match:  Host(`nautobot.local.byrnbaker.me`)
+    Middlewares:
+      Name:  default-headers
+    Services:
+      Name:  nautobot
+      Port:  80
+Events:      <none>
+```
+browsing to our defined fqdn should allow you to access your nautobot app.
+![alt text](./images/nb_homepage.png)
+
+When defining our values we did not specify any login credentials for this application. Those have been defined for us and here is how you can retrieve them.
+
+```
+echo Username: admin
+  echo Password: $(kubectl get secret --namespace nautobot nautobot-env -o jsonpath="{.data.NAUTOBOT_SUPERUSER_PASSWORD}" | base64 --decode)
+  echo api-token: $(kubectl get secret --namespace nautobot nautobot-env -o jsonpath="{.data.NAUTOBOT_SUPERUSER_API_TOKEN}" | base64 --decode)
+```
