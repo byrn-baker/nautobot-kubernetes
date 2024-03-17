@@ -7,6 +7,8 @@ resources:
   - namespace.yaml
   - nautobot-helmrepo.yaml
   - helmrelease.yaml
+  - ingress.yaml
+  - default-headers.yaml
 
 generatorOptions:
   disableNameSuffixHash: true

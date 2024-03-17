@@ -228,3 +228,35 @@ spec:
 ```
 
 Be sure to update your ```./kubernetes/kustomization.yaml``` to track these new files. Commit this to your repo, and we should start to see the cluster deploy the application.
+
+We should see that our kustomization in the cluster has been updated
+
+```
+$ kubectl get kustomization -n flux-system
+NAME                     AGE   READY   STATUS
+flux-system              26h   True    Applied revision: main@sha1:ec6b061c699fde8e78ecfb8d92b1e4d183ff53dc
+nautobot-kustomization   25m   True    Applied revision: main@sha1:ec6b061c699fde8e78ecfb8d92b1e4d183ff53dc
+```
+
+Also we should see helm installing the app
+```
+$ kubectl get helmreleases -n nautobot
+NAME       AGE   READY     STATUS
+nautobot   78s   Unknown   Running 'install' action with timeout of 5m0s
+```
+
+We should also see that pods have been created in our new nautobot namespace. This takes several minutes as Nautobot has to initialze. We can watch the logs of a given pod with kubectl - ```$ kubectl logs -n nautobot nautobot-58d7fc66f6-5h24f```. You find the pod name with the below command.
+```
+$ kubectl get pods -n nautobot
+NAME                                     READY   STATUS    RESTARTS        AGE
+nautobot-58d7fc66f6-5h24f                1/1     Running   3 (2m56s ago)   7m47s
+nautobot-58d7fc66f6-tr9l6                1/1     Running   2 (4m26s ago)   7m47s
+nautobot-celery-beat-84cf4b547f-v4qq9    1/1     Running   5 (5m21s ago)   7m47s
+nautobot-celery-worker-5b9c7648f-6wgdc   1/1     Running   2 (7m5s ago)    7m47s
+nautobot-celery-worker-5b9c7648f-c9qzp   1/1     Running   3 (6m49s ago)   7m47s
+nautobot-postgresql-0                    1/1     Running   0               7m47s
+nautobot-redis-master-0                  1/1     Running   0               7m47s
+```
+
+Excelent we have the deployment up and running. We can get further details with ```kubectl describe deployment -n nautobot nautobot```. This will provide details on the docker container version used, along with the exposed ports inside the cluster. Now we need to define how the application can be accessed from outside the cluster.
+
