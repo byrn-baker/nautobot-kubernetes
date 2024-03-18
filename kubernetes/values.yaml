@@ -1,6 +1,7 @@
 ---
 postgresql:
-  postgresqlPassword: "SuperSecret123"
+  auth:
+    password: "SuperSecret123"
 redis:
   auth:
     password: "SuperSecret456"
