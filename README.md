@@ -512,7 +512,7 @@ Now lets see if we can deploy this custom image to our cluster. We need to updat
 nautobot:
   image:
     registry: "ghcr.io"
-    repository: "networktocode/nautobot-kubernetes"
+    repository: "byrn-baker/nautobot-kubernetes"
     tag: "main"
     pullSecrets:
       - "ghcr.io"
