@@ -523,3 +523,22 @@ $ kubectl create secret docker-registry --docker-server=ghcr.io --docker-usernam
 secret/ghcr.io created
 ```
 Commit and push the changes to your repo.
+
+Should see the nautobot pods restarting now, and after a few minutes it should finish initializing.
+```
+$ kubectl get pods -n nautobot
+NAME                                     READY   STATUS    RESTARTS        AGE
+nautobot-5b65b45bd8-5lnhj                0/1     Running   3 (20s ago)     5m11s
+nautobot-5b65b45bd8-qx4c6                0/1     Running   3 (20s ago)     5m11s
+nautobot-celery-beat-79cb85b4df-8k6dk    1/1     Running   1 (4m34s ago)   5m11s
+nautobot-celery-worker-8968d5477-jspgp   1/1     Running   0               4m2s
+nautobot-celery-worker-8968d5477-vpktd   1/1     Running   0               5m11s
+nautobot-postgresql-0                    1/1     Running   0               8h
+nautobot-redis-master-0                  1/1     Running   0               8h
+```
+
+We can also see that the image being used was pulled from our repo
+```
+$ kubectl describe pod -n nautobot nautobot-5b65b45bd8-5lnhj | grep Image
+    Image:          ghcr.io/byrn-baker/nautobot-kubernetes:main
+```
