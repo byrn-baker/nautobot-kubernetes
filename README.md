@@ -371,7 +371,6 @@ Spec:
 Events:      <none>
 ```
 browsing to our defined fqdn should allow you to access your nautobot app.
-![alt text](./images/nb_homepage.png)
 
 When defining our values we did not specify any login credentials for this application. Those have been defined for us and here is how you can retrieve them.
 
