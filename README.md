@@ -384,6 +384,14 @@ echo Username: admin
 ## Part 2 - Creating your own custom container
 There are a lot of great Nautobot apps that compliment and extend the usefullness of Nautobot, and I want to include some of those into my deployment. First lets create a new container of our own based on the nautobot base image.
 
+We need a Dockerfile:
+```
+ARG NAUTOBOT_VERSION=1.4.2
+ARG PYTHON_VERSION=3.9
+FROM ghcr.io/nautobot/nautobot:${NAUTOBOT_VERSION}-py${PYTHON_VERSION}
+```
+
+Then we can build a new container
 ```
 $ docker build -t ghcr.io/byrn-baker/nautobot-kubernetes:dev .
 [+] Building 53.0s (6/6) FINISHED                                                                                                                                                                                                                                                                                                                      docker:default
