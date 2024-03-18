@@ -6,10 +6,3 @@ redis:
     password: "SuperSecret456"
 celeryWorker:
   replicaCount: 4
-nautobot:
-  image:
-    registry: "ghcr.io"
-    repository: "byrn-baker/nautobot-kubernetes"
-    tag: "main"
-    pullSecrets:
-      - "ghcr.io"
