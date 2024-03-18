@@ -4,5 +4,10 @@ postgresql:
 redis:
   auth:
     password: "SuperSecret456"
-celeryWorker:
-  replicaCount: 4
+nautobot:
+  image:
+    registry: "ghcr.io"
+    repository: "networktocode/nautobot-kubernetes"
+    tag: "main"
+    pullSecrets:
+      - "ghcr.io"
