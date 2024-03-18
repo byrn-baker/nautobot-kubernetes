@@ -321,7 +321,7 @@ spec:
     stsPreload: true
     stsSeconds: 15552000
 ```
-We need to make sure these are being tracked with flux, so update the resources list in ```./kubernetes/kustomization.yaml``` with these two new files. Commit your changes and in a few minutes we should be able to see the updates pushed down to the cluster.
+We need to make sure these are being tracked with flux, so update the resources list in ```./kubernetes/kustomization.yaml``` with these two new files. Commit your changes and in a few minutes we should be able to see the updates pushed down to the cluster. 
 
 We can see flux reconciling the new commit
 ```
