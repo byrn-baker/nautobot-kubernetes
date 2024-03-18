@@ -18,7 +18,6 @@ spec:
     - kind: "ConfigMap"
       name: "nautobot-values"
       valuesKey: "values"
-    - kind: IngressRoute
-      name: nautobot-ingress
-      namespace: nautobot
+    - kind: "ConfigMap"
+      name: "nautobot-ingress"
       valuesKey: "ingress"
