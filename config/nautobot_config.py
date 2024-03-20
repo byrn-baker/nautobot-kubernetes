@@ -126,7 +126,7 @@ if not _TESTING:
 #
 
 # Enable installed plugins. Add the name of each plugin to the list.
-PLUGINS = ["nautobot_plugin_nornir", "nautobot_golden_config", "nautobot_device_onboarding", "nautobot_bgp_models", "welcome_wizard", "nautobot_design_builder", "nautobot_floor_plan", "nautobot_data_validation_engine", "nautobot_firewall_models", "nautobot_device_lifecycle_mgmt", "nautobot_cdn_models"]
+PLUGINS = ["nautobot_plugin_nornir", "nautobot_golden_config"]
 
 PLUGINS_CONFIG = {
     "nautobot_plugin_nornir": {
@@ -163,5 +163,3 @@ PLUGINS_CONFIG = {
         # "get_custom_compliance": "my.custom_compliance.func"
     },
 }
-
-
