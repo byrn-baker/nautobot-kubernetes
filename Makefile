@@ -9,3 +9,16 @@ push:
 
 pull:
 	docker pull ghcr.io/byrn-baker/nautobot-kubernetes:$(tag)
+
+lint:
+	@echo "Linting..."
+	@sleep 1
+	@echo "Done."
+
+test:
+	@echo "Testing..."
+	@sleep 1
+	@echo "Done."
+
+update-tag:
+	sed -i 's/tag: \".*\"/tag: \"$(tag)\"/g' $(values)
