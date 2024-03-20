@@ -18,6 +18,3 @@ spec:
     - kind: "ConfigMap"
       name: "nautobot-values"
       valuesKey: "values"
-    - kind: "ConfigMap"
-      name: "nautobot-ingress"
-      valuesKey: "ingress"
