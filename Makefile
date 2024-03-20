@@ -1,5 +1,6 @@
 # Get current branch by default
 tag := $(shell git rev-parse --abbrev-ref HEAD)
+values := "./kubernetes/values.yaml"
 
 build:
 	docker build -t ghcr.io/byrn-baker/nautobot-kubernetes:$(tag) .
