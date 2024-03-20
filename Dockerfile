@@ -6,4 +6,4 @@ COPY requirements.txt /tmp/
 
 RUN pip install -r /tmp/requirements.txt
 
-COPY ./configuration/nautobot_config.py /opt/nautobot/
+COPY ./config/nautobot_config.py /opt/nautobot/
