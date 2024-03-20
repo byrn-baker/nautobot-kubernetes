@@ -32,7 +32,7 @@ jobs:
       - name: "Build the image"
         run: "make tag=${{ github.ref_name }} build"
       - name: "Login to ghcr.io"
-        run: "echo ${{ secrets.REPO_TOKEN }} | docker login ghcr.io -u byrn-baker --password-stdin"
+        run: "echo ${{ secrets.REPO_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin"
       - name: "Push the image to the repository"
         run: "make tag=${{ github.ref_name }} push"
   test:
