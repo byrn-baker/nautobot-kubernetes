@@ -1,0 +1,2 @@
+nautobot_plugin_nornir
+nautobot-golden-config
