@@ -1,8 +1,24 @@
 # nautobot on kubernetes
-I am joining the #100DayOfHomeLab challene and as part of this effort I am going to use that time to teach myself something new. 
+Custom Nautobot image to deploy into Kubernetes cluster
 
-I love the [Nautobot](https://networktocode.com/nautobot/) and use it all the time at home and at work. I have always deployed this on a standard ubuntu VM, but recently I started to gain interest in deploying it with docker while learning how to create a Nautobot Application. This lead me to looking at Kubernetes and watching a lot of youtube videos on setting up kubernetes. Now I wondered how can I deploy Nautobot inside my k3s cluster? There are examples out there and so I stand on the shoulders of those who have figured this all for me. 
 
-For great walk throughs on k3s, traefik, metallb and deploying your cluster with ansible have a look [here](https://github.com/techno-tim/k3s-ansible), and for flux check [this](https://www.youtube.com/watch?v=PFLimPh5-wo) out.
+Create the docker image
+```bash
+make build
+```
 
-For the original content to the majority of my walk through check out this blog series from networktocode - [part 1](https://blog.networktocode.com/post/deploying-nautobot-to-kubernetes-01/), [part 2](https://blog.networktocode.com/post/deploying-nautobot-to-kubernetes-02/), and [part 3](https://blog.networktocode.com/post/deploying-nautobot-to-kubernetes-03/)
+Push it to your Github Repo
+```bash
+make push
+```
+Setup Flux
+```bash
+flux bootstrap git \
+  --url=https://github.com/byrn-baker/nautobot-kubernetes \
+  --username=$GITHUB_USERNAME \
+  --password=$GITHUB_FLUX_TOKEN \
+  --token-auth=true \
+  --branch=main \
+  --path=clusters/home
+```
+
