@@ -419,7 +419,7 @@ INSTALLATION_METRICS_ENABLED = is_truthy(os.getenv("NAUTOBOT_INSTALLATION_METRIC
 
 # Enable installed plugins. Add the name of each plugin to the list.
 #
-PLUGINS = ["nautobot_plugin_nornir", "nautobot_golden_config"]
+PLUGINS = ["nautobot_plugin_nornir", "nautobot_golden_config", "nautobot_bgp_models"]
 
 PLUGINS_CONFIG = {
     "nautobot_plugin_nornir": {
