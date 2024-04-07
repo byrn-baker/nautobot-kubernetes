@@ -188,7 +188,7 @@ SECRET_KEY = os.getenv("NAUTOBOT_SECRET_KEY", "7a+4@byeq-ds!(3bpglu7#l-!@!xmq^rj
 
 # Time zone (default: UTC)
 #
-# TIME_ZONE = os.getenv("NAUTOBOT_TIME_ZONE", "UTC")
+TIME_ZONE = os.getenv("NAUTOBOT_TIME_ZONE", "MST")
 
 ###################################################################
 #                                                                 #
@@ -219,7 +219,7 @@ SECRET_KEY = os.getenv("NAUTOBOT_SECRET_KEY", "7a+4@byeq-ds!(3bpglu7#l-!@!xmq^rj
 #
 # BANNER_BOTTOM = ""
 # BANNER_LOGIN = ""
-# BANNER_TOP = ""
+BANNER_TOP = "Byrn Bakers Homelab"
 
 # Branding logo locations. The logo takes the place of the Nautobot logo in the top right of the nav bar.
 # The filepath should be relative to the `MEDIA_ROOT`.
