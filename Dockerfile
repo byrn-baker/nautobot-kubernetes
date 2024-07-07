@@ -7,9 +7,3 @@ COPY requirements.txt /tmp/
 RUN pip install -r /tmp/requirements.txt
 
 COPY ./config/nautobot_config.py /opt/nautobot/
-
-ARG GITLAB_USERNAME
-ENV GITLAB_USERNAME=${GITLAB_USERNAME}
-
-ARG GITLAB_TOKEN
-ENV GITLAB_TOKEN=${GITLAB_TOKEN}
