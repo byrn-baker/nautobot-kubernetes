@@ -3,7 +3,7 @@ nautobot:
   image:
     registry: "ghcr.io"
     repository: "byrn-baker/nautobot-kubernetes"
-    tag: "v0.0.5"
+    tag: "v0.0.6"
     pullSecrets:
       - "ghcr.io"
   replicaCount: 2
